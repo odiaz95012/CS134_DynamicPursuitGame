@@ -28,6 +28,7 @@ public:
     float   radius;
     float   birthtime;
     bool hasImage = false;
+    bool isDead = false;
     void    integrate();
     void    draw();
     float   age();// sec
@@ -36,6 +37,7 @@ public:
     float getBoundingCircle();
     ofImage particleImage;
     PlayerShape *player;
+    ofColor color;
     
     
 };

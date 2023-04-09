@@ -74,7 +74,8 @@ float PlayerShape::getBoundingCircleRadius(){
         return glm::sqrt(width / 2 + height / 2);
 }
 bool PlayerShape::isInBounds(glm::vec3 pos){
-    return pos.x + width > 2 * width && pos.x + width < ofGetWidth() && pos.y + height > 2 * height && pos.y + height < ofGetHeight();
+    //return pos.x + width > 2 * width && pos.x + width < ofGetWidth() && pos.y + height > 2 * height && pos.y + height < ofGetHeight();
+    return pos.x - width >= 0 && pos.x + width <= ofGetWidth() && pos.y - height >= 0 && pos.y + height <= ofGetHeight();
 }
 
 void PlayerShape::setLifespan(float lifespan) {

@@ -23,8 +23,8 @@ public:
     void setGroupSize(int s) { groupSize = s; }
     void setOneShot(bool s) { oneShot = s; }
     void setPlayerPointer(PlayerShape *user);
-    bool checkParticleAgentCollision();
     void setChildImage(ofImage img);
+    void setParticleColor(ofColor newColor) { color = newColor; }
     void update();
     void spawn(float time);
     ParticleSystem *sys;
@@ -32,7 +32,7 @@ public:
     bool oneShot;
     bool fired;
     ofVec3f velocity;
-    float lifespan;     // sec
+    float lifespan = -1;     // sec
     bool started;
     float lastSpawned;  // ms
     float particleRadius;
@@ -44,5 +44,7 @@ public:
     PlayerShape *player;
     ofImage childImage;
     bool hasChildImage = false;
+    bool showChildImage = true;
     ofSoundPlayer blasterSound;
+    ofColor color;
 };

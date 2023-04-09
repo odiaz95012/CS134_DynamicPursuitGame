@@ -30,46 +30,15 @@ public:
 	void setAgentLifespan(float);
     void setParticleLifespan(float);
 	void reset();
-	int removeNear(const ofVec3f & point, float dist);
 	void drawAgents();
     void drawParticles();
 	vector<AgentSprite> agents;
     vector<Particle> particles;
 	vector<ParticleForce *> forces;
     bool collisionOccured(AgentSprite *agent);
-    bool checkPlayerShotAgent(Particle *particle, AgentSprite *agent);
     void setPlayerToChase(PlayerShape *user);
-    void playExplosionSound();
     
-    ofSoundPlayer playerLostEnergy;
-    bool playerHitByAgent = false;
-    bool playerHitAgent = false;
 };
 
 
-
-// Some convenient built-in forces
-//
-class GravityForce: public ParticleForce {
-	ofVec3f gravity;
-public:
-	GravityForce(const ofVec3f & gravity);
-	void updateForce(Particle *);
-};
-
-class TurbulenceForce : public ParticleForce {
-	ofVec3f tmin, tmax;
-public:
-	TurbulenceForce(const ofVec3f & min, const ofVec3f &max);
-	void updateForce(Particle *);
-};
-
-class ImpulseRadialForce : public ParticleForce {
-	float magnitude;
-    float height;
-public:
-	ImpulseRadialForce(float magnitude); 
-	void updateForce(Particle *);
-    void setHeight(float height);
-};
 

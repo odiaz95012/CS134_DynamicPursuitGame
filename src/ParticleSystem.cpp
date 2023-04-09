@@ -3,12 +3,7 @@
 
 #include "ParticleSystem.h"
 
-void ParticleSystem::playExplosionSound(){
-    if(playerHitByAgent)
-        playerLostEnergy.play();
-    else
-        playerLostEnergy.stop();
-}
+\
 void ParticleSystem::add(const AgentSprite &p) {
 	agents.push_back(p);
 }
@@ -20,10 +15,18 @@ void ParticleSystem::addForce(ParticleForce *f) {
 }
 
 void ParticleSystem::removeAgent(int i) {
-	agents.erase(agents.begin() + i);
+    try{
+        agents.erase(agents.begin() + i);
+    }catch(exception){
+        cout << "failed to remove agent" << endl;
+    }
 }
 void ParticleSystem::removeParticle(int i) {
-    particles.erase(particles.begin() + i);
+    try{
+        particles.erase(particles.begin() + i);
+    }catch(exception){
+        cout << "failed to remove particle" << endl;
+    }
 }
 void ParticleSystem::setAgentLifespan(float l) {
 	for (int i = 0; i < agents.size(); i++) {
@@ -56,12 +59,6 @@ bool ParticleSystem::collisionOccured(AgentSprite *agent){
         return distance < agentBoundedCircle + playerBoundedCircle;
     }
 }
-bool ParticleSystem::checkPlayerShotAgent(Particle *particle, AgentSprite *agent){
-    float particleRadius = particle->getBoundingCircle();
-    float agentBoundedCircle = agent->getBoundingCircleRadius();
-    float distance = glm::distance(particle->position, agent->pos);
-    return distance < particleRadius + agentBoundedCircle;
-}
 void ParticleSystem::updateAgents() {
 	// check if empty and just return
 	if (agents.size() == 0) return;
@@ -74,7 +71,7 @@ void ParticleSystem::updateAgents() {
 	// traversing at the same time, we need to use an iterator.
     
 	while (agent != agents.end()) {
-		if ((agent->lifespan != -1 && agent->age() > agent->lifespan) || agent->lifespan == -2){
+		if ((agent->lifespan != -1 && agent->age() > agent->lifespan) || agent->isDead){
 			tmp = agents.erase(agent);
             agent = tmp;
 		}
@@ -88,12 +85,10 @@ void ParticleSystem::updateAgents() {
         AgentSprite *agent = &agents[i];
 		agents[i].integrate();
         if(collisionOccured(agent)){ // if collision occured, then the agent is removed from the game and
-            playerHitByAgent = true;
-            playExplosionSound();
+            player->tookDamage = true;
             agents[i].lifespan = -2;
             player->nEnergy -= 1;
         }
-        playerHitByAgent = false;
         
     }
 
@@ -109,7 +104,7 @@ void ParticleSystem::updateParticles() {
     // traversing at the same time, we need to use an iterator.
     
     while (particle != particles.end()) {
-        if ((particle->lifespan != -1 && particle->age() > particle->lifespan) || particle->lifespan == -2){
+        if ((particle->lifespan != -1 && particle->age() > particle->lifespan) || particle->isDead){
             tmp = particles.erase(particle);
             particle = tmp;
         }
@@ -141,9 +136,7 @@ void ParticleSystem::updateParticles() {
     }
 
 }
-// remove all particlies within "dist" of point (not implemented as yet)
-//
-int ParticleSystem::removeNear(const ofVec3f & point, float dist) { return 0; }
+
 
 //  draw the particle cloud
 //
@@ -158,53 +151,4 @@ void ParticleSystem::drawParticles(){
     }
 }
 
-// Gravity Force Field 
-//
-GravityForce::GravityForce(const ofVec3f &g) {
-	gravity = g;
-}
 
-void GravityForce::updateForce(Particle *particle) {
-	//
-	// f = mg
-	//
-    particle->forces += gravity * particle->mass;
-}
-
-// Turbulence Force Field 
-//
-TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
-	tmin = min;
-	tmax = max;
-}
-
-void TurbulenceForce::updateForce(Particle *particle) {
-	//
-	// We are going to add a little "noise" to a particles
-	// forces to achieve a more natual look to the motion
-	//
-    particle->forces.x += ofRandom(tmin.x, tmax.x);
-    particle->forces.y += ofRandom(tmin.y, tmax.y);
-    particle->forces.z += ofRandom(tmin.z, tmax.z);
-}
-
-// Impulse Radial Force - this is a "one shot" force that
-// eminates radially outward in random directions.
-//
-ImpulseRadialForce::ImpulseRadialForce(float magnitude) {
-	this->magnitude = magnitude;
-	applyOnce = true;
-}
-
-void ImpulseRadialForce::updateForce(Particle *particle) {
-
-	// we basically create a random direction for each particle
-	// the force is only added once after it is triggered.
-	//
-	ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-1, 1), ofRandom(-1, 1));
-    particle->forces += dir.getNormalized() * magnitude;
-}
-void ImpulseRadialForce::setHeight(float height){
-    this->height = height;
-    
-}

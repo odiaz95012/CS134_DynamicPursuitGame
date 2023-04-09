@@ -8,7 +8,7 @@
 #include "ParticleEmitter.hpp"
 #include "Particle.hpp"
 
-//TODO: figure out how to get agents to rotate to player, figure out why explosion effects can only be generated for only a few seconds (maybe the emitter dies after a few seconds?)
+//TODO: figure out particle and agent collisions
 
 
 
@@ -33,6 +33,16 @@ class ofApp : public ofBaseApp{
         void setLevelParameters(int level);
         void playJetpackSound();
         void playGameMusic();
+        void checkParticleAgentCollision();
+        void updateEmitters();
+        bool collisionOccured(AgentSprite *agent);
+        bool playerTookDamage();
+        void loadSoundEffects();
+        void loadImages();
+        void setupGui();
+        void setupEmitters();
+        void playGainedEnergySound();
+        void drawStaticComponents(); // draws the game statistics/prompts
 
         ParticleEmitter agentEmitter;
         ParticleEmitter playerWeapon;
@@ -43,17 +53,24 @@ class ofApp : public ofBaseApp{
         ofImage defaultImage;
         ofImage playerImage;
         ofImage agentImage;
-        ofImage bulletImage;
+        ofImage rayImage;
         ofVec3f mouse_last;
         bool backgroundLoaded = false;
         bool playerImageLoaded = false;
         bool agentImageLoaded = false;
+        bool gainedLife = false;
+        bool drawGainEnergyStr = false;
         bool playJetpack = false;
         bool isPlayerShooting = false;
         bool gameStarted;
         bool gameOver = false;
         bool inFullScreen = false;
+        bool noSpriteMode = false;
+    
         float elapsedTime = 0;
+        float gainedEnergyStrTime = 0;
+        float gainedEnergyStrStart = 0;
+        int gainEnergySoundPlayCount = 0;
         int resetLevel = 0;
         
         // Some basic UI
@@ -63,6 +80,8 @@ class ofApp : public ofBaseApp{
         ofxToggle showPlayerImage;
         ofxToggle showAgentImage;
         ofxToggle showBackgroundImage;
+        ofxToggle showAllSpriteImages;
+    
         ofxFloatSlider life;
         ofxIntSlider playerSpeed;
         ofxIntSlider agentVelocity;
@@ -82,4 +101,6 @@ class ofApp : public ofBaseApp{
         ofSoundPlayer gameOverSound;
         ofSoundPlayer gameStartSound;
         ofSoundPlayer gameMusic;
+        ofSoundPlayer playerLostEnergy;
+        ofSoundPlayer playerGainedEnergy;
 };

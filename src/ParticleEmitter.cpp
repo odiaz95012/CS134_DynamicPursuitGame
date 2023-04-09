@@ -60,8 +60,6 @@ void ParticleEmitter::stop() {
 }
 void ParticleEmitter::update() {
     float time = ofGetElapsedTimeMillis();
-    if(type == DirectionalEmitter)
-        checkParticleAgentCollision();
     if (oneShot && started){
         if (!fired) {
             // spawn a new particle(s)
@@ -82,6 +80,7 @@ void ParticleEmitter::update() {
     
         lastSpawned = time;
     }
+
     if(type == AgentEmitter)
         sys->updateAgents();
     else
@@ -91,27 +90,7 @@ void ParticleEmitter::setChildImage(ofImage img){
     childImage = img;
     hasChildImage = true;
 }
-bool ParticleEmitter::checkParticleAgentCollision(){
-    if(sys->agents.size() == 0 || sys->particles.size() == 0) return false;
-    cout << "checking for collision" << endl;
-    float particleRadius;
-    float agentRadius;
-    float distance;
-    for(int i = 0; i < sys->agents.size(); i++){
-        agentRadius = sys->agents[i].getBoundingCircleRadius();
-        for (int j = 0; j < sys->particles.size(); j++){
-            particleRadius = sys->particles[j].radius;
-            distance = glm::distance(sys->agents[i].pos, sys->particles[j].position);
-            if(distance < particleRadius + agentRadius){
-                sys->particles[j].lifespan = -2;
-                sys->agents[i].lifespan = -2;
-                player->nEnergy += 1;
-            }
-                return true;
-        }
-    }
-    return false;
-}
+
 // spawn a single particle.  time is current time of birth
 //
 void ParticleEmitter::spawn(float time) {
@@ -126,7 +105,11 @@ void ParticleEmitter::spawn(float time) {
         ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-1, 1), ofRandom(-1, 1));
         float speed = velocity.length();
         particle.velocity = dir.getNormalized() * speed;
+        particle.radius = particleRadius;
         particle.position = position;
+        particle.birthtime = time;
+        particle.lifespan = lifespan;
+        particle.color = color;
         sys->add(particle);
     }
     break;
@@ -134,14 +117,16 @@ void ParticleEmitter::spawn(float time) {
         break;
     case DirectionalEmitter:{ // for player weapon emitter
             Particle particle;
-            if(hasChildImage) particle.setImage(childImage);
+            if(hasChildImage && showChildImage) particle.setImage(childImage);
             particle.setPlayerPointer(player);
             particle.velocity = velocity;
             particle.position = position;
             glm::vec3 perpenVec = glm::vec3(-player->heading().y, player->heading().x, 0);
             particle.forces = perpenVec * 500.0; // this is so that the when the player shoots, they come from the weapon, not the player itself
             particle.radius = particleRadius;
+            particle.birthtime = time;
             particle.lifespan = lifespan;
+            particle.color = color;
             sys->add(particle);
             blasterSound.play();
         break;
@@ -149,15 +134,11 @@ void ParticleEmitter::spawn(float time) {
     case AgentEmitter: // For emitter to spawn agents
         AgentSprite agent;
         agent.setPlayerToChase(player);
-        if(hasChildImage) agent.setImage(childImage);
+        if(hasChildImage && showChildImage) agent.setImage(childImage);
         agent.velocity = velocity;
         float randomXPoint = rand() % ofGetWidth();
         float randomYPoint = rand() % ofGetHeight();
         agent.pos = glm::vec3(randomXPoint, randomYPoint, 0);
-        if(player->pos.x < agent.pos.x) // agent is to the right of the player so we rotate left
-            agent.angularForce = -75.0;
-        else if(player->pos.x > agent.pos.x) // agent is to the left of the player so we rotate right
-            agent.angularForce = 75.0;
         agent.birthtime = time;
         agent.lifespan = lifespan;
         // add to system

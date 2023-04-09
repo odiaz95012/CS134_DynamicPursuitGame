@@ -24,7 +24,7 @@ void Particle::draw() {
     if(hasImage){
         particleImage.draw(position.x + -particleImage.getWidth() / 2, position.y + -particleImage.getHeight() / 2.0);
     }else{
-        ofSetColor(ofMap(age(), 0, lifespan, 255, 10), 0, 0);
+        ofSetColor(color);
         ofDrawSphere(position, radius);
     }
 }

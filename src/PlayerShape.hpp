@@ -34,7 +34,7 @@ public:
         verts.push_back(glm::vec3(0, -25, 0));
         scale = glm::vec3(3,3,3);
         drawable = false;
-        pos = glm::vec3(ofGetWidth() / 2.0, ofGetHeight() / 2.0, 0);
+        pos = glm::vec3(ofGetWindowWidth() / 2.0, ofGetWindowHeight() / 2.0, 0);
     }
 
     PlayerState state = Stopped;
@@ -56,6 +56,7 @@ public:
     float height = 200;
     float totalSurvivalTime = 0;
     bool drawable;
+    bool tookDamage = false;
 
     bool isInBounds(glm::vec3 p);
     void draw();

@@ -34,10 +34,12 @@ void AgentSprite::integrate(){
     velocity += accel * dt;
     velocity *= damping;
     
-    //rotational motion
-    rot += (angularVelocity * dt);
-    float a = angularAcceleration;;
-    a += (angularForce * 1.0 / mass);
-    angularVelocity += a * dt;
-    angularVelocity *= damping;
+    //calc the rotation angle
+    glm::vec3 vecFromAgentToPlayer = glm::normalize(player->pos - pos);
+    glm::vec3 u = glm::vec3(0,-1,0); // up vector for the agent
+    float angle = glm::orientedAngle(vecFromAgentToPlayer, u, glm::vec3(0,0,-1));
+    rot = glm::degrees(angle);
+    
+
+    
 }
